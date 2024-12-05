@@ -13,6 +13,7 @@ public:
 	point3 center;
 	double aspect_ratio;
 	int image_width;
+	int samples_per_pixel = 10;
 	sphere s;
 
 	camera() : center(point3(0, 0, 0)) {}
@@ -65,8 +66,10 @@ private:
 	}
 
 	color find_ray_color(const ray& r) {
-		if (s.hit(r)) {
-			return color(1.0, 1.0, 1.0);
+		hit_record rec;
+		if (s.hit(r, rec)) {
+			vec3 unit_normal = to_unit_vec(rec.n);
+			return color(unit_normal.x, unit_normal.y, unit_normal.z);
 		}
 		color light_blue(0.2, 0.2, 1.0);
 		color dark_blue(0.0, 0.0, 0.2);
