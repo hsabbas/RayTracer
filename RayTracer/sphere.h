@@ -28,7 +28,8 @@ public:
 
 		rec.t = t;
 		rec.p = r.at(t);
-		rec.n = rec.p - center;
+		vec3 outward_normal = (rec.p - center) / radius;
+		rec.set_front_normal(r, outward_normal);
 		return true;
 	}
 

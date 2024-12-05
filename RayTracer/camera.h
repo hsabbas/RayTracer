@@ -9,6 +9,7 @@
 
 class camera {
 public:
+	int samples_per_pixel = 10;
 	double aspect_ratio;
 	int image_width;
 
@@ -22,17 +23,18 @@ public:
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 		for (int row = 0; row < image_height; row++) {
 			for (int col = 0; col < image_width; col++) {
-				point3 pixel_center = pixel00loc + delta_v * row + delta_u * col;
-				vec3 ray_dir = pixel_center - center;
-				ray r(center, ray_dir);
-				color ray_color = find_ray_color(r, objects);
+				color ray_color;
+				for (int sample = 0; sample < samples_per_pixel; sample++) {
+					ray r = get_ray(row, col);
+					ray_color += find_ray_color(r, objects);
+				}
+				ray_color /= samples_per_pixel;
 				ray_color.print_color(std::cout);
 			}
 		}
 	}
 
 private:
-	int samples_per_pixel = 10;
 	double focal_length;
 	int image_height;
 	double viewport_width;
@@ -59,6 +61,15 @@ private:
 
 		point3 viewport_top_left = center + vec3(0, 0, -focal_length) - 0.5 * viewport_u - 0.5 * viewport_v;
 		pixel00loc = viewport_top_left + 0.5 * delta_v + 0.5 * delta_u;
+	}
+
+	ray get_ray(int row, int col) {
+		double offset_row = row + (random_double() - 0.5);
+		double offset_col = col + (random_double() - 0.5);
+		point3 pixel_center = pixel00loc + delta_v * offset_row + delta_u * offset_col;
+		vec3 ray_dir = pixel_center - center;
+		ray r(center, ray_dir);
+		return r;
 	}
 
 	color find_ray_color(const ray& r, const hittable_list& objects) {

@@ -1,6 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include "interval.h"
+
 class color {
 public:
 	double r, g, b;
@@ -8,10 +10,25 @@ public:
 	color(double r, double g, double b) : r(r), g(g), b(b) {}
 
 	void print_color(std::ostream& out) {
-		int r_byte = 255.999 * r;
-		int g_byte = 255.999 * g;
-		int b_byte = 255.999 * b;
+		const interval intensity(0.0, 0.999);
+		int r_byte = int(256 * intensity.clamp(r));
+		int g_byte = int(256 * intensity.clamp(g));
+		int b_byte = int(256 * intensity.clamp(b));
 		out << r_byte << ' ' << g_byte << ' ' << b_byte << '\n';
+	}
+
+	color& operator+=(const color& other) {
+		r += other.r;
+		g += other.g;
+		b += other.b;
+		return *this;
+	}
+
+	color& operator/=(double x) {
+		r /= x;
+		g /= x;
+		b /= x;
+		return *this;
 	}
 };
 

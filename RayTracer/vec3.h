@@ -41,6 +41,10 @@ inline vec3 operator/(const vec3& v, double t) {
 	return v * (1 / t);
 }
 
+inline vec3 operator-(const vec3& v) {
+	return vec3(-v.x, -v.y, -v.z);
+}
+
 inline vec3 to_unit_vec(const vec3& v) {
 	return v / v.length();
 }
