@@ -1,6 +1,8 @@
 #ifndef VEC3_H
 #define VEC3_H
 
+#include <cmath>
+
 class vec3 {
 public:
 	double x, y, z;
@@ -8,7 +10,11 @@ public:
 	vec3(double x, double y, double z) : x(x), y(y), z(z) {}
 
 	double length() const {
-		return std::sqrt(x*x + y*y + z*z);
+		return std::sqrt(length_squared());
+	}
+
+	double length_squared() const {
+		return x*x + y*y + z*z;
 	}
 
 };
@@ -37,6 +43,10 @@ inline vec3 operator/(const vec3& v, double t) {
 
 inline vec3 to_unit_vec(const vec3& v) {
 	return v / v.length();
+}
+
+inline double dot(const vec3& v, const vec3& u) {
+	return v.x * u.x + v.y * u.y + v.z * u.z;
 }
 
 #endif // !VEC3_H

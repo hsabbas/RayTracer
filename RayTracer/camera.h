@@ -6,12 +6,14 @@
 #include "vec3.h"
 #include "ray.h"
 #include "color.h"
+#include "sphere.h"
 
 class camera {
 public:
 	point3 center;
 	double aspect_ratio;
 	int image_width;
+	sphere s;
 
 	camera() : center(point3(0, 0, 0)) {}
 	camera(point3 center, double aspect_ratio, int image_width) 
@@ -46,9 +48,10 @@ private:
 	void initialize() {
 		focal_length = 1.0;
 		image_height = image_width / aspect_ratio;
+		image_height = image_height < 1 ? 1 : image_height;
 		
 		viewport_height = 2.0;
-		viewport_width = viewport_height * double(image_width / image_height);
+		viewport_width = viewport_height * double(image_width) / image_height;
 		viewport_v = vec3(0, -viewport_height, 0);
 		viewport_u = vec3(viewport_width, 0, 0);
 
@@ -57,9 +60,14 @@ private:
 
 		point3 viewport_top_left = center + vec3(0, 0, -focal_length) - 0.5 * viewport_u - 0.5 * viewport_v;
 		pixel00loc = viewport_top_left + 0.5 * delta_v + 0.5 * delta_u;
+		s.center = point3(0, 0, -1);
+		s.radius = 0.5;
 	}
 
 	color find_ray_color(const ray& r) {
+		if (s.hit(r)) {
+			return color(1.0, 1.0, 1.0);
+		}
 		color light_blue(0.2, 0.2, 1.0);
 		color dark_blue(0.0, 0.0, 0.2);
 		vec3 unit_direction = to_unit_vec(r.direction);
