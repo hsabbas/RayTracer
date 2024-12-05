@@ -3,24 +3,20 @@
 
 #include <iostream>
 
-#include "vec3.h"
-#include "ray.h"
-#include "color.h"
 #include "sphere.h"
+#include "hittable_list.h"
+#include "raytracer.h"
 
 class camera {
 public:
-	point3 center;
 	double aspect_ratio;
 	int image_width;
-	int samples_per_pixel = 10;
-	sphere s;
 
 	camera() : center(point3(0, 0, 0)) {}
 	camera(point3 center, double aspect_ratio, int image_width) 
 		: center(center), aspect_ratio(aspect_ratio), image_width(image_width) {}
 
-	void render() {
+	void render(const hittable_list& objects) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -29,17 +25,19 @@ public:
 				point3 pixel_center = pixel00loc + delta_v * row + delta_u * col;
 				vec3 ray_dir = pixel_center - center;
 				ray r(center, ray_dir);
-				color ray_color = find_ray_color(r);
+				color ray_color = find_ray_color(r, objects);
 				ray_color.print_color(std::cout);
 			}
 		}
 	}
 
 private:
+	int samples_per_pixel = 10;
 	double focal_length;
 	int image_height;
 	double viewport_width;
 	double viewport_height;
+	point3 center;
 	point3 pixel00loc;
 	vec3 viewport_v;
 	vec3 viewport_u;
@@ -61,13 +59,11 @@ private:
 
 		point3 viewport_top_left = center + vec3(0, 0, -focal_length) - 0.5 * viewport_u - 0.5 * viewport_v;
 		pixel00loc = viewport_top_left + 0.5 * delta_v + 0.5 * delta_u;
-		s.center = point3(0, 0, -1);
-		s.radius = 0.5;
 	}
 
-	color find_ray_color(const ray& r) {
+	color find_ray_color(const ray& r, const hittable_list& objects) {
 		hit_record rec;
-		if (s.hit(r, rec)) {
+		if (objects.hit(r, 0, infinity, rec)) {
 			vec3 unit_normal = to_unit_vec(rec.n);
 			return color(unit_normal.x, unit_normal.y, unit_normal.z);
 		}
