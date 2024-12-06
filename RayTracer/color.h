@@ -6,7 +6,7 @@
 class color {
 public:
 	double r, g, b;
-	color(){}
+	color() : r(0.0), g(0.0), b(0.0) {}
 	color(double r, double g, double b) : r(r), g(g), b(b) {}
 
 	void print_color(std::ostream& out) {

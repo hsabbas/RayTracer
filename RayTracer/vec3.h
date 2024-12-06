@@ -2,6 +2,7 @@
 #define VEC3_H
 
 #include <cmath>
+#include "raytracer.h"
 
 class vec3 {
 public:
@@ -15,6 +16,14 @@ public:
 
 	double length_squared() const {
 		return x*x + y*y + z*z;
+	}
+
+	static vec3 random_vector() {
+		return vec3(random_double(), random_double(), random_double());
+	}
+
+	static vec3 random_vector(double min, double max) {
+		return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
 	}
 
 };
@@ -53,5 +62,13 @@ inline double dot(const vec3& v, const vec3& u) {
 	return v.x * u.x + v.y * u.y + v.z * u.z;
 }
 
+inline vec3 random_unit_vector() {
+	while (true) {
+		auto p = vec3::random_vector(-1, 1);
+		auto lensq = p.length_squared();
+		if (lensq <= 1)
+			return p / sqrt(lensq);
+	}
+}
 #endif // !VEC3_H
 

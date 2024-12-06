@@ -6,6 +6,7 @@
 #include "sphere.h"
 #include "hittable_list.h"
 #include "raytracer.h"
+#include "hittable.h"
 
 class camera {
 public:
@@ -26,7 +27,7 @@ public:
 				color ray_color;
 				for (int sample = 0; sample < samples_per_pixel; sample++) {
 					ray r = get_ray(row, col);
-					ray_color += find_ray_color(r, objects);
+					ray_color += find_ray_color(r, 0, objects);
 				}
 				ray_color /= samples_per_pixel;
 				ray_color.print_color(std::cout);
@@ -45,8 +46,11 @@ private:
 	vec3 viewport_u;
 	vec3 delta_v;
 	vec3 delta_u;
+	int max_depth;
 
 	void initialize() {
+		max_depth = 40;
+
 		focal_length = 1.0;
 		image_height = image_width / aspect_ratio;
 		image_height = image_height < 1 ? 1 : image_height;
@@ -72,11 +76,19 @@ private:
 		return r;
 	}
 
-	color find_ray_color(const ray& r, const hittable_list& objects) {
+	ray find_scattered_ray(const hit_record& rec) {
+		return ray(rec.p, random_unit_vector() + rec.n);
+	}
+
+	color find_ray_color(const ray& r, int depth, const hittable_list& objects) {
+		if (depth == max_depth) {
+			return color(0, 0, 0);
+		}
+
 		hit_record rec;
-		if (objects.hit(r, 0, infinity, rec)) {
-			vec3 unit_normal = to_unit_vec(rec.n);
-			return color(unit_normal.x, unit_normal.y, unit_normal.z);
+		if (objects.hit(r, interval(0.001, infinity), rec)) {
+			ray bounce = find_scattered_ray(rec);
+			return 0.5 * find_ray_color(bounce, depth + 1, objects);
 		}
 		color light_blue(0.2, 0.2, 1.0);
 		color dark_blue(0.0, 0.0, 0.2);

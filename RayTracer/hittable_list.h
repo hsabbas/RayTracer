@@ -5,6 +5,7 @@
 #include <memory>
 #include "hittable.h"
 #include "ray.h"
+#include "interval.h"
 
 class hittable_list : hittable {
 public:
@@ -18,13 +19,13 @@ public:
 		objects.push_back(object);
 	}
 
-	bool hit(const ray& r, double tmin, double tmax, hit_record& rec) const override{
+	bool hit(const ray& r, interval t_int, hit_record& rec) const override{
 		bool hit_obj = false;
 
 		hit_record temp;
-		double closest = tmax;
+		double closest = t_int.max;
 		for (const auto& object : objects) {
-			if (object->hit(r, tmin, closest, temp)) {
+			if (object->hit(r, interval(t_int.min, closest), temp)) {
 				hit_obj = true;
 				closest = temp.t;
 				rec = temp;
