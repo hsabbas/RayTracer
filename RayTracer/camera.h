@@ -13,6 +13,7 @@ public:
 	int samples_per_pixel = 10;
 	double aspect_ratio;
 	int image_width;
+	int background = 0;
 
 	camera() : center(point3(0, 0, 0)) {}
 	camera(point3 center, double aspect_ratio, int image_width) 
@@ -90,11 +91,19 @@ private:
 			ray bounce = find_scattered_ray(rec);
 			return 0.5 * find_ray_color(bounce, depth + 1, objects);
 		}
-		color light_blue(0.2, 0.2, 1.0);
-		color dark_blue(0.0, 0.0, 0.2);
+		color top_color(1.0, 1.0, 1.0);
+		color bottom_color(1.0, 1.0, 1.0);
+		if (background == 0) {
+			top_color = color(0.5, 0.7, 1.0);
+			bottom_color = color(1.0, 1.0, 1.0);
+		}
+		else if (background == 1) {
+			top_color = color(0.2, 0.2, 1.0);
+			bottom_color = color(0.0, 0.0, 0.2);
+		}
 		vec3 unit_direction = to_unit_vec(r.direction);
 		double a = 0.5 * (unit_direction.y + 1.0);
-		return (1 - a) * dark_blue + a * light_blue;
+		return (1 - a) * bottom_color + a * top_color;
 	}
 };
 
